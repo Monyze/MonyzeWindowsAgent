@@ -7,8 +7,8 @@ using log4net;
 using log4net.Config;
 
 namespace MonyzeWindowsAgent
-{
-    class Logger
+{ 
+    public static class Logger
     {
         private static ILog log = LogManager.GetLogger("LOGGER");
 
@@ -19,7 +19,7 @@ namespace MonyzeWindowsAgent
 
         public static void InitLogger()
         {
-            XmlConfigurator.Configure();
+            log4net.Config.XmlConfigurator.Configure();
         }
     }
 }
