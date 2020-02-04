@@ -14,6 +14,8 @@ namespace MonyzeWindowsAgent
 
         public readonly string deviceId;
 
+        public readonly bool logJSONs;
+
         public Config()
         {
             var ini = new IniFile(AppDomain.CurrentDomain.BaseDirectory + "/monyze_config.ini");
@@ -21,6 +23,10 @@ namespace MonyzeWindowsAgent
             userId = ini.Read("user_id");
 
             deviceId = ini.Read("device_id");
+
+            var logJSONsStr = ini.Read("log_json");
+
+            logJSONs = logJSONsStr == "1" || logJSONsStr == "ON" || logJSONsStr == "On" || logJSONsStr == "on";
         }
     }
 }

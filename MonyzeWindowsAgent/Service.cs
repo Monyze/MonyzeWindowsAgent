@@ -27,6 +27,16 @@ namespace MonyzeWindowsAgent
             Logger.InitLogger();
 
             Logger.Log.InfoFormat("Service is started, user id: {0}, device id: {1}", config.userId, config.deviceId);
+
+            HardwareGetter hwg = new HardwareGetter();
+
+            var hwgOutput = hwg.GetComputerHardware();
+
+            if (config.logJSONs)
+            {
+                Logger.Log.Info(hwgOutput);
+            }
+
             timer.Elapsed += new ElapsedEventHandler(OnElapsedTime);
             timer.Interval = 5000; //number in milisecinds  
             timer.Enabled = true;
