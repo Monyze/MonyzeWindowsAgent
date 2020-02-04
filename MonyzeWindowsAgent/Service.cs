@@ -13,6 +13,8 @@ namespace MonyzeWindowsAgent
 {
     public partial class MonyzeWindowsAgent : ServiceBase
     {
+        Config config = new Config();
+
         Timer timer = new Timer();
 
         public MonyzeWindowsAgent()
@@ -24,7 +26,7 @@ namespace MonyzeWindowsAgent
         {
             Logger.InitLogger();
 
-            Logger.Log.Info("Service is started");
+            Logger.Log.InfoFormat("Service is started, user id: {0}, device id: {1}", config.userId, config.deviceId);
             timer.Elapsed += new ElapsedEventHandler(OnElapsedTime);
             timer.Interval = 5000; //number in milisecinds  
             timer.Enabled = true;
