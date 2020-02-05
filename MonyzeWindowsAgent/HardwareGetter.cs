@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Management;
-using OpenHardwareMonitor;
-using OpenHardwareMonitor.Hardware;
 
 namespace MonyzeWindowsAgent
 {
@@ -17,18 +15,22 @@ namespace MonyzeWindowsAgent
         {
             string output = "\t\t\"cpu\":{";
 
-            Computer computerHardware = new Computer() { CPUEnabled = true };
-
-            computerHardware.Open();
-            var hardwareCount = computerHardware.Hardware.Count();
-            for (int x = 0; x != hardwareCount; ++x)
+            var searcherCPUs = new ManagementObjectSearcher("select * from Win32_Processor");
+            try
             {
-                var name = computerHardware.Hardware[x].Name;
-                
-                output += "\r\n\t\t\t\"cpu_" + (x + 1).ToString() + "\":\"" + name + "\",";
-            }
+                int x = 1;
 
-            computerHardware.Close();
+                foreach (var cpu in searcherCPUs.Get())
+                {
+                    output += "\r\n\t\t\t\"cpu_" + (x++).ToString() + "\":\"" + cpu["Name"] + "\",";
+
+
+                }
+            }
+            catch (Exception exp)
+            {
+                //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
+            }
 
             output = output.TrimEnd(',');
 
@@ -127,6 +129,8 @@ namespace MonyzeWindowsAgent
                                     }
                                 }
                             }
+
+                            output += "\r\n\t\t\t\t}\r\n\t\t\t},";
                         }
                     }
                 }
@@ -139,92 +143,6 @@ namespace MonyzeWindowsAgent
             output = output.TrimEnd(',');
 
             return output + "\r\n\t\t]";
-        }
-
-        private string UpdateOHM()
-        {
-            // CPUEnabled = true, MainboardEnabled = true, FanControllerEnabled = true, GPUEnabled = true, RAMEnabled = true, HDDEnabled = true
-
-            Computer computerHardware = new Computer() { HDDEnabled = true };
-
-            string output = "";
-
-            string name = string.Empty;
-            string type = string.Empty;
-            string value = string.Empty;
-            int x, y, z, n;
-            int hardwareCount;
-            int subcount;
-            int sensorcount;
-
-            computerHardware.Open();
-            hardwareCount = computerHardware.Hardware.Count();
-            for (x = 0; x < hardwareCount; x++)
-            {
-                name = computerHardware.Hardware[x].Name;
-                type = computerHardware.Hardware[x].HardwareType.ToString();
-                value = ""; // no value for non-sensors;
-                //AddReportItem(name, type, value);
-
-                output += name + ", " + type + ": " + value + ";\n";
-
-                subcount = computerHardware.Hardware[x].SubHardware.Count();
-
-                // ADDED 07-28-2016
-                // NEED Update to view Subhardware
-                for (y = 0; y < subcount; y++)
-                {
-                    computerHardware.Hardware[x].SubHardware[y].Update();
-                }
-                //
-
-                if (subcount > 0)
-                {
-                    for (y = 0; y < subcount; y++)
-                    {
-                        sensorcount = computerHardware.Hardware[x].
-                        SubHardware[y].Sensors.Count();
-                        name = computerHardware.Hardware[x].SubHardware[y].Name;
-                        type = computerHardware.Hardware[x].SubHardware[y].
-                        HardwareType.ToString();
-                        value = "";
-                        output += name + ", " + type + ": " + value + ";\n";
-
-                        if (sensorcount > 0)
-                        {
-
-                            for (z = 0; z < sensorcount; z++)
-                            {
-
-                                name = computerHardware.Hardware[x].
-                                SubHardware[y].Sensors[z].Name;
-                                type = computerHardware.Hardware[x].
-                                SubHardware[y].Sensors[z].SensorType.ToString();
-                                value = computerHardware.Hardware[x].
-                                SubHardware[y].Sensors[z].Value.ToString();
-                                output += name + ", " + type + ": " + value + ";\n";
-
-                            }
-                        }
-                    }
-                }
-                sensorcount = computerHardware.Hardware[x].Sensors.Count();
-
-                if (sensorcount > 0)
-                {
-                    for (z = 0; z < sensorcount; z++)
-                    {
-                        name = computerHardware.Hardware[x].Sensors[z].Name;
-                        type = computerHardware.Hardware[x].Sensors[z].SensorType.ToString();
-                        value = computerHardware.Hardware[x].Sensors[z].Value.ToString();
-                        output += name + ", " + type + ": " + value + ";\n";
-
-                    }
-                }
-            }
-            computerHardware.Close();
-
-            return output;
         }
 
         public string GetComputerHardware()
