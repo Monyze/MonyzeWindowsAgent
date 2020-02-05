@@ -8,7 +8,7 @@ namespace MonyzeWindowsAgent
 {
     class Config
     {
-        public const string url = "https://monyze.ru/api_dev";
+        public readonly string url = "https://monyze.ru/api_dev";
 
         public readonly string userId;
 
