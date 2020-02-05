@@ -49,7 +49,7 @@ namespace MonyzeWindowsAgent
 
         private void OnElapsedTime(object source, ElapsedEventArgs e)
         {
-            Logger.Log.Info("Service is recall");
+            //Logger.Log.Info("Service is recall");
         }
     }
 }
