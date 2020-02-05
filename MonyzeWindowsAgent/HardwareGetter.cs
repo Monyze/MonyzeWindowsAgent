@@ -23,11 +23,9 @@ namespace MonyzeWindowsAgent
                 foreach (var cpu in searcherCPUs.Get())
                 {
                     output += "\r\n\t\t\t\"cpu_" + (x++).ToString() + "\":\"" + cpu["Name"] + "\",";
-
-
                 }
             }
-            catch (Exception exp)
+            catch (Exception)
             {
                 //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
             }
@@ -85,7 +83,7 @@ namespace MonyzeWindowsAgent
                         "\r\n\t\t\t\t}\r\n\t\t\t},";
                 }
             }
-            catch (Exception exp)
+            catch (Exception)
             {
                 //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
             }
@@ -135,7 +133,7 @@ namespace MonyzeWindowsAgent
                     }
                 }
             }
-            catch (Exception exp)
+            catch (Exception)
             {
                 //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
             }
@@ -143,6 +141,26 @@ namespace MonyzeWindowsAgent
             output = output.TrimEnd(',');
 
             return output + "\r\n\t\t]";
+        }
+
+        private string GetRAM()
+        {
+            string output = "\t\t\"ram\":{";
+
+            var searcherComputerSystems = new ManagementObjectSearcher("select * from Win32_ComputerSystem");
+            try
+            {
+                foreach (var computerSystem in searcherComputerSystems.Get())
+                {
+                    output += "\r\n\t\t\t\"TotalPh\":" + computerSystem["TotalPhysicalMemory"] + "";
+                }
+            }
+            catch (Exception)
+            {
+                //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
+            }
+
+            return output + "\r\n\t\t}";
         }
 
         public string GetComputerHardware()
@@ -159,7 +177,8 @@ namespace MonyzeWindowsAgent
                 "\t\t\"icon\": \"f17a\",\r\n" +
                     GetCPUList() + ",\r\n" +
                     GetHDDList() + ",\r\n" +
-                    GetNetList() +
+                    GetNetList() + ",\r\n" +
+                    GetRAM() +
                 "\r\n\t}\r\n}";
         }
     }
