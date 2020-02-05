@@ -39,20 +39,20 @@ namespace MonyzeWindowsAgent
         {
             string output = "\t\t\"hdd\":[";
 
-            ManagementObjectSearcher searcherPhysicalDrives = new ManagementObjectSearcher("select * from Win32_DiskDrive");
+            var searcherPhysicalDrives = new ManagementObjectSearcher("select * from Win32_DiskDrive");
             try
             {
                 int x = 1;
 
-                foreach (ManagementObject physicalDrive in searcherPhysicalDrives.Get())
+                foreach (var physicalDrive in searcherPhysicalDrives.Get())
                 {
                     output += "\r\n\t\t\t{\r\n\t\t\t\t\"hdd_" + (x++).ToString() + "\":{" +
                     "\r\n\t\t\t\t\t\"name\":\"" + physicalDrive["Model"] + "\"," +
-                    "\r\n\t\t\t\t\t\"size\":\"" + (Convert.ToInt64(physicalDrive["Size"]) / 1000000000).ToString() + "\"," +
-                    "\r\n\t\t\t\t\t\"LOGICAL\":\"[";
+                    "\r\n\t\t\t\t\t\"size\":" + (Convert.ToInt64(physicalDrive["Size"]) / 1000000000).ToString() + "," +
+                    "\r\n\t\t\t\t\t\"LOGICAL\":[";
 
-                    ManagementObjectSearcher searcherDiskPartition = new ManagementObjectSearcher("select * from Win32_DiskDriveToDiskPartition");
-                    foreach (ManagementObject diskPartition in searcherDiskPartition.Get())
+                    var searcherDiskPartitions = new ManagementObjectSearcher("select * from Win32_DiskDriveToDiskPartition");
+                    foreach (var diskPartition in searcherDiskPartitions.Get())
                     {
                         string deviceId = physicalDrive["deviceID"].ToString().TrimStart('\\');
                         deviceId = deviceId.TrimStart('.');
@@ -62,8 +62,8 @@ namespace MonyzeWindowsAgent
                         {
                             string partitionId = diskPartition["Dependent"].ToString();
 
-                            ManagementObjectSearcher searcherLogicalDisk = new ManagementObjectSearcher("select * from Win32_LogicalDiskToPartition");
-                            foreach (ManagementObject logicalDisk in searcherLogicalDisk.Get())
+                            var searcherLogicalDisks = new ManagementObjectSearcher("select * from Win32_LogicalDiskToPartition");
+                            foreach (var logicalDisk in searcherLogicalDisks.Get())
                             {
                                 if (logicalDisk["Antecedent"].ToString().Contains(partitionId))
                                 {
@@ -87,6 +87,56 @@ namespace MonyzeWindowsAgent
             {
                 //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
             }
+
+            output = output.TrimEnd(',');
+
+            return output + "\r\n\t\t]";
+        }
+
+        private string GetNetList()
+        {
+            string output = "\t\t\"net\":[";
+
+            var searcherNetworkAdapters = new ManagementObjectSearcher("select * from Win32_NetworkAdapter");
+            try
+            {
+                int x = 1;
+
+                foreach (var networkAdapter in searcherNetworkAdapters.Get())
+                {
+                    foreach (var prop in networkAdapter.Properties)
+                    {
+                        if (prop.Name == "MACAddress" && prop.Value != null)
+                        {
+                            output += "\r\n\t\t\t{\r\n\t\t\t\t\"net_" + (x++).ToString() + "\":{" +
+                            "\r\n\t\t\t\t\t\"name\":\"" + networkAdapter["NetConnectionID"] + "\"," +
+                            "\r\n\t\t\t\t\t\"model\":\"" + networkAdapter["Name"] + "\"," +
+                            "\r\n\t\t\t\t\t\"speed\":" + (Convert.ToInt64(networkAdapter["Speed"]) / 100000).ToString();
+
+                            string adapterGUID = networkAdapter["GUID"].ToString();
+
+                            var searcherNetworkAdapterConfigurations = new ManagementObjectSearcher("select * from Win32_NetworkAdapterConfiguration");
+                            foreach (var networkAdapterConfiguration in searcherNetworkAdapterConfigurations.Get())
+                            {
+                                if (networkAdapterConfiguration["SettingID"].ToString().Contains(adapterGUID))
+                                {
+                                    string[] addresses = (string[])networkAdapterConfiguration["IPAddress"];
+                                    if (addresses.Count() != 0)
+                                    {
+                                        output += ",\r\n\t\t\t\t\t\"addr\":\"" + addresses[0] + "\"";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
+            }
+
+            output = output.TrimEnd(',');
 
             return output + "\r\n\t\t]";
         }
@@ -191,6 +241,7 @@ namespace MonyzeWindowsAgent
                 "\t\t\"icon\": \"f17a\",\r\n" +
                     GetCPUList() + ",\r\n" +
                     GetHDDList() + ",\r\n" +
+                    GetNetList() +
                 "\r\n\t}\r\n}";
         }
     }
