@@ -54,12 +54,17 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Entities\Config\CPU.cs" />
-    <Compile Include="Entities\Config\DeviceConfig.cs" />
+    <Compile Include="Entities\Config\ConfigSummary.cs" />
     <Compile Include="Entities\Config\HDD.cs" />
     <Compile Include="Entities\Config\Net.cs" />
     <Compile Include="Entities\Config\RAM.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="Entities\List.cs" />
+    <Compile Include="Entities\Load\CPU.cs" />
+    <Compile Include="Entities\Load\HDD.cs" />
+    <Compile Include="Entities\Load\LoadSummary.cs" />
+    <Compile Include="Entities\Load\Net.cs" />
+    <Compile Include="Entities\Load\RAM.cs" />
     <Compile Include="HardwareGetter.cs" />
     <Compile Include="IniFile.cs" />
     <Compile Include="LoadGetter.cs" />
@@ -96,8 +101,6 @@
   <ItemGroup>
     <Analyzer Include="OpenHardwareMonitorLib.dll" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Entities\Load\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

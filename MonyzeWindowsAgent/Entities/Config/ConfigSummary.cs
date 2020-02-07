@@ -7,7 +7,7 @@ using MonyzeWindowsAgent.Entities;
 
 namespace MonyzeWindowsAgent.Entities.Config
 {
-    class DeviceConfig : IEntity
+    class ConfigSummary : IEntity
     {
         public string userId;
         public string deviceId;
@@ -19,7 +19,7 @@ namespace MonyzeWindowsAgent.Entities.Config
         public List net;
         public RAM ram;
 
-        public DeviceConfig(string userId_,
+        public ConfigSummary(string userId_,
             string deviceId_,
             string deviceName_,
             string system_,
@@ -38,7 +38,7 @@ namespace MonyzeWindowsAgent.Entities.Config
             hdd = hdd_;
             net = net_;
             ram = ram_;
-    }
+        }
 
         public string Serialize()
         {

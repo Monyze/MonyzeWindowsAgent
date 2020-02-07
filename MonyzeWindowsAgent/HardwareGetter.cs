@@ -9,12 +9,24 @@ namespace MonyzeWindowsAgent
 {
     class HardwareGetter
     {
-        private Config config = new Config();
+        private Config config;
 
         private Entities.List cpuList = new Entities.List("cpu", "\t\t", Entities.BracketType.scCurly);
         private Entities.List hddList = new Entities.List("hdd", "\t\t");
         private Entities.List netList = new Entities.List("net", "\t\t", Entities.BracketType.scCurly);
         private Entities.Config.RAM ram;
+
+        public HardwareGetter(ref Config config_)
+        {
+            config = config_;
+        }
+
+        private string GetWindowsVersion()
+        {
+            var name = (from x in new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem").Get().Cast<ManagementObject>()
+                        select x.GetPropertyValue("Caption")).FirstOrDefault();
+            return name != null ? name.ToString() : "Unknown";
+        }
 
         private void GetCPUList()
         {
@@ -148,10 +160,10 @@ namespace MonyzeWindowsAgent
             GetNetList();
             GetRAM();
 
-            var deviceConfig = new Entities.Config.DeviceConfig(config.userId,
+            var deviceConfig = new Entities.Config.ConfigSummary(config.userId,
                 config.deviceId,
                 Environment.MachineName,
-                Environment.OSVersion.ToString(),
+                GetWindowsVersion(),
                 (Environment.Is64BitOperatingSystem ? "64bit" : "32bit"),
                 ref cpuList,
                 ref hddList,
