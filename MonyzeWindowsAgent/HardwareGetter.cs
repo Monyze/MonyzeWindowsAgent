@@ -11,10 +11,13 @@ namespace MonyzeWindowsAgent
     {
         private Config config = new Config();
 
-        private string GetCPUList()
-        {
-            string output = "\t\t\"cpu\":{";
+        private Entities.List cpuList = new Entities.List("cpu", "\t\t", Entities.BracketType.scCurly);
+        private Entities.List hddList = new Entities.List("hdd", "\t\t");
+        private Entities.List netList = new Entities.List("net", "\t\t", Entities.BracketType.scCurly);
+        private Entities.Config.RAM ram;
 
+        private void GetCPUList()
+        {
             var searcherCPUs = new ManagementObjectSearcher("select * from Win32_Processor");
             try
             {
@@ -22,23 +25,17 @@ namespace MonyzeWindowsAgent
 
                 foreach (var cpu in searcherCPUs.Get())
                 {
-                    output += "\r\n\t\t\t\"cpu_" + (x++).ToString() + "\":\"" + cpu["Name"] + "\",";
+                    cpuList.Add(new Entities.Config.CPU(x++, cpu["Name"].ToString(), "\t\t\t"));
                 }
             }
-            catch (Exception)
+            catch (Exception exp)
             {
-                //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
+                Logger.Log.Error("HardwareGetter.GetCPUList :: " + exp.Message);
             }
-
-            output = output.TrimEnd(',');
-
-            return output + "\r\n\t\t}";
         }
 
-        private string GetHDDList()
+        private void GetHDDList()
         {
-            string output = "\t\t\"hdd\":[";
-
             var searcherPhysicalDrives = new ManagementObjectSearcher("select * from Win32_DiskDrive");
             try
             {
@@ -46,10 +43,7 @@ namespace MonyzeWindowsAgent
 
                 foreach (var physicalDrive in searcherPhysicalDrives.Get())
                 {
-                    output += "\r\n\t\t\t{\r\n\t\t\t\t\"hdd_" + (x++).ToString() + "\":{" +
-                    "\r\n\t\t\t\t\t\"name\":\"" + physicalDrive["Model"] + "\"," +
-                    "\r\n\t\t\t\t\t\"size\":" + (Convert.ToInt64(physicalDrive["Size"]) / 1000000000).ToString() + "," +
-                    "\r\n\t\t\t\t\t\"LOGICAL\":[";
+                    List<string> logicals = new List<string>();
 
                     var searcherDiskPartitions = new ManagementObjectSearcher("select * from Win32_DiskDriveToDiskPartition");
                     foreach (var diskPartition in searcherDiskPartitions.Get())
@@ -71,32 +65,23 @@ namespace MonyzeWindowsAgent
 
                                     string deviceLetter = tokens[1];
 
-                                    output += "\r\n\t\t\t\t\t\t" + deviceLetter + ",";
+                                    logicals.Add(deviceLetter);
                                 }
                             }
                         }
                     }
 
-                    output = output.TrimEnd(',');
-
-                    output += "\r\n\t\t\t\t\t]" +
-                        "\r\n\t\t\t\t}\r\n\t\t\t},";
+                    hddList.Add(new Entities.Config.HDD(x++, physicalDrive["Model"].ToString(), Convert.ToInt64(physicalDrive["Size"].ToString()) / 1000000000, logicals, "\t\t\t"));
                 }
             }
-            catch (Exception)
+            catch (Exception exp)
             {
-                //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
+                Logger.Log.Error("HardwareGetter.GetHDDList :: " + exp.Message);
             }
-
-            output = output.TrimEnd(',');
-
-            return output + "\r\n\t\t]";
         }
 
-        private string GetNetList()
+        private void GetNetList()
         {
-            string output = "\t\t\"net\":[";
-
             var searcherNetworkAdapters = new ManagementObjectSearcher("select * from Win32_NetworkAdapter");
             try
             {
@@ -108,10 +93,7 @@ namespace MonyzeWindowsAgent
                     {
                         if (prop.Name == "MACAddress" && prop.Value != null)
                         {
-                            output += "\r\n\t\t\t{\r\n\t\t\t\t\"net_" + (x++).ToString() + "\":{" +
-                            "\r\n\t\t\t\t\t\"name\":\"" + networkAdapter["NetConnectionID"] + "\"," +
-                            "\r\n\t\t\t\t\t\"model\":\"" + networkAdapter["Name"] + "\"," +
-                            "\r\n\t\t\t\t\t\"speed\":" + (Convert.ToInt64(networkAdapter["Speed"]) / 100000).ToString();
+                            string address = "";
 
                             string adapterGUID = networkAdapter["GUID"].ToString();
 
@@ -123,63 +105,60 @@ namespace MonyzeWindowsAgent
                                     string[] addresses = (string[])networkAdapterConfiguration["IPAddress"];
                                     if (addresses.Count() != 0)
                                     {
-                                        output += ",\r\n\t\t\t\t\t\"addr\":\"" + addresses[0] + "\"";
+                                        address = addresses[0];
                                     }
                                 }
                             }
 
-                            output += "\r\n\t\t\t\t}\r\n\t\t\t},";
+                            netList.Add(new Entities.Config.Net(x++, networkAdapter["NetConnectionID"].ToString(), networkAdapter["Name"].ToString(), (Convert.ToInt64(networkAdapter["Speed"]) / 100000), address, "\t\t\t"));
                         }
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception exp)
             {
-                //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
+                Logger.Log.Error("HardwareGetter.GetNetList :: " + exp.Message);
             }
-
-            output = output.TrimEnd(',');
-
-            return output + "\r\n\t\t]";
         }
 
-        private string GetRAM()
+        private void GetRAM()
         {
-            string output = "\t\t\"ram\":{";
+            Int64 ramSize = 0;
 
             var searcherComputerSystems = new ManagementObjectSearcher("select * from Win32_ComputerSystem");
             try
             {
                 foreach (var computerSystem in searcherComputerSystems.Get())
                 {
-                    output += "\r\n\t\t\t\"TotalPh\":" + computerSystem["TotalPhysicalMemory"] + "";
+                    ramSize = Convert.ToInt64(computerSystem["TotalPhysicalMemory"].ToString());
                 }
             }
-            catch (Exception)
+            catch (Exception exp)
             {
-                //todo: logger => ("can't get data because of the followeing error \n" + exp.Message);
+                Logger.Log.Error("HardwareGetter.GetRAM :: " + exp.Message);
             }
 
-            return output + "\r\n\t\t}";
+            ram = new Entities.Config.RAM(ramSize, "\t\t");
         }
 
         public string GetComputerHardware()
         {
-            return "{\r\n" +
-                "\t\"id\": {\r\n" +
-                "\t\t\"user_id\": \"" + config.userId + "\",\r\n" +
-                "\t\t\"device_id\": \"" + config.deviceId + "\"\r\n\t},\r\n" +
-                "\t\"state\": \"config\",\r\n" +
-                "\t\"device_config\": {\r\n" +
-                "\t\t\"device_name\": \"" + Environment.MachineName + "\",\r\n" +
-                "\t\t\"system\": \"" + Environment.OSVersion.ToString() + "\",\r\n" +
-                "\t\t\"bits\": \"" + (Environment.Is64BitOperatingSystem ? "64bit" : "32bit") + "\",\r\n" +
-                "\t\t\"icon\": \"f17a\",\r\n" +
-                    GetCPUList() + ",\r\n" +
-                    GetHDDList() + ",\r\n" +
-                    GetNetList() + ",\r\n" +
-                    GetRAM() +
-                "\r\n\t}\r\n}";
+            GetCPUList();
+            GetHDDList();
+            GetNetList();
+            GetRAM();
+
+            var deviceConfig = new Entities.Config.DeviceConfig(config.userId,
+                config.deviceId,
+                Environment.MachineName,
+                Environment.OSVersion.ToString(),
+                (Environment.Is64BitOperatingSystem ? "64bit" : "32bit"),
+                ref cpuList,
+                ref hddList,
+                ref netList,
+                ref ram);
+
+            return deviceConfig.Serialize();
         }
     }
 }
