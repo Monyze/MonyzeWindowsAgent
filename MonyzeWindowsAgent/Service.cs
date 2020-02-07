@@ -50,6 +50,8 @@ namespace MonyzeWindowsAgent
             // Send the hardware configuration once after start
             if (!started)
             {
+                started = true;
+
                 HardwareGetter hwg = new HardwareGetter();
 
                 var hwgOutput = hwg.GetComputerHardware();
