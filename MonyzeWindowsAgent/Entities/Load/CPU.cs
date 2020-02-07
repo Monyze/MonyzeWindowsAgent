@@ -17,6 +17,7 @@ namespace MonyzeWindowsAgent.Entities.Load
         public CPU(int number_, int load_, double temp_, string indent_ = "")
         {
             indent = indent_;
+            number = number_;
             load = load_;
             temp = temp_;
         }

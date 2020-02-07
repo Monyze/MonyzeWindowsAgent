@@ -11,9 +11,9 @@ namespace MonyzeWindowsAgent.Entities.Load
     {
         public string indent = "";
         public int load;
-        public Int64 availPh;
+        public double availPh;
 
-        public RAM(int load_, Int64 availPh_, string indent_ = "")
+        public RAM(int load_, double availPh_, string indent_ = "")
         {
             indent = indent_;
             load = load_;

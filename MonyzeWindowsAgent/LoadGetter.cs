@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Management;
 
 namespace MonyzeWindowsAgent
 {
@@ -22,22 +23,41 @@ namespace MonyzeWindowsAgent
 
         private void GetCPULoad()
         {
-            
+            cpuList.Clear();
+
         }
 
         private void GetHDDLoad()
         {
-            
+            hddList.Clear();
         }
 
         private void GetNetLoad()
         {
-            
+            netList.Clear();
         }
 
         private void GetRAMLoad()
         {
-            ram = new Entities.Load.RAM(10, 437528765138, "\t\t");
+            double totalRamMb = 0;
+
+            var searcherComputerSystems = new ManagementObjectSearcher("select * from Win32_ComputerSystem");
+            try
+            {
+                foreach (var computerSystem in searcherComputerSystems.Get())
+                {
+                    totalRamMb = Convert.ToInt64(computerSystem["TotalPhysicalMemory"].ToString()) / 1000000;
+                }
+            }
+            catch (Exception exp)
+            {
+                Logger.Log.Error("LoadGetter.GetRAMLoad :: " + exp.Message);
+            }
+
+            var ramAvailableGetter = new System.Diagnostics.PerformanceCounter("Memory", "Available MBytes");
+            double ramAvailable = ramAvailableGetter.NextValue();
+
+            ram = new Entities.Load.RAM(100 - (int)((ramAvailable / totalRamMb) * 100), ramAvailable, "\t\t");
         }
 
         public string GetComputerLoad()

@@ -35,7 +35,7 @@ namespace MonyzeWindowsAgent
             Logger.Log.InfoFormat("Service is started, user id: {0}, device id: {1}", config.userId, config.deviceId);
 
             timer.Elapsed += new ElapsedEventHandler(OnElapsedTime);
-            timer.Interval = 5000; //number in milisecinds  
+            timer.Interval = 500; //number in milisecinds  
             timer.Enabled = true;
         }
 
