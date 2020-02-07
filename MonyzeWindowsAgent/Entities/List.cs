@@ -33,6 +33,10 @@ namespace MonyzeWindowsAgent.Entities
             list.Add(entity);
         }
 
+        public void Clear()
+        {
+            list.Clear();
+        }
         public string Serialize()
         {
             string output = indent + "\"" + @name + "\":" + (bracketType == BracketType.scSquare ? "[" : "{");

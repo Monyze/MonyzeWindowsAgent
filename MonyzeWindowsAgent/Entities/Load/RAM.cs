@@ -9,9 +9,23 @@ namespace MonyzeWindowsAgent.Entities.Load
 {
     class RAM : IEntity
     {
+        public string indent = "";
+        public int load;
+        public Int64 availPh;
+
+        public RAM(int load_, Int64 availPh_, string indent_ = "")
+        {
+            indent = indent_;
+            load = load_;
+            availPh = availPh_;
+        }
+
         public string Serialize()
         {
-            return "";
+            return indent + "\"ram\":{\r\n" +
+                indent + "\t\"load\":" + load.ToString() + ",\r\n" +
+                indent + "\t\"AvailPh\":" + availPh.ToString() + "\r\n" +
+                indent + "}";
         }
     }
 }

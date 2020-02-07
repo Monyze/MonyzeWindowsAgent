@@ -30,6 +30,8 @@ namespace MonyzeWindowsAgent
 
         private void GetCPUList()
         {
+            cpuList.Clear();
+
             var searcherCPUs = new ManagementObjectSearcher("select * from Win32_Processor");
             try
             {
@@ -48,6 +50,8 @@ namespace MonyzeWindowsAgent
 
         private void GetHDDList()
         {
+            hddList.Clear();
+
             var searcherPhysicalDrives = new ManagementObjectSearcher("select * from Win32_DiskDrive");
             try
             {
@@ -94,6 +98,8 @@ namespace MonyzeWindowsAgent
 
         private void GetNetList()
         {
+            netList.Clear();
+
             var searcherNetworkAdapters = new ManagementObjectSearcher("select * from Win32_NetworkAdapter");
             try
             {

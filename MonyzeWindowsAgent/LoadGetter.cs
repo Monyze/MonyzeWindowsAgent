@@ -37,12 +37,7 @@ namespace MonyzeWindowsAgent
 
         private void GetRAMLoad()
         {
-            
-        }
-
-        private void GetWidgets()
-        {
-            
+            ram = new Entities.Load.RAM(10, 437528765138, "\t\t");
         }
 
         public string GetComputerLoad()
