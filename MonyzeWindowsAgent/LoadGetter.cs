@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Management;
+using OpenHardwareMonitor.Hardware;
 
 namespace MonyzeWindowsAgent
 {
@@ -25,6 +26,51 @@ namespace MonyzeWindowsAgent
         {
             cpuList.Clear();
 
+            Computer computerHardware = new Computer() { CPUEnabled = true };
+
+            computerHardware.Open();
+            var hardwareCount = computerHardware.Hardware.Count();
+            for (var i = 0; i != hardwareCount; ++i)
+            {
+                var loads = new Entities.List("load", "\t\t\t\t", Entities.BracketType.scCurly);
+                var temps = new Entities.List("temp", "\t\t\t\t");
+
+                var subcount = computerHardware.Hardware[i].SubHardware.Count();
+
+                // NEED Update to view Subhardware
+                for (var j = 0; j != subcount; ++j)
+                {
+                    computerHardware.Hardware[i].SubHardware[j].Update();
+                }
+                
+                var sensorcount = computerHardware.Hardware[i].Sensors.Count();
+
+                int l = 1, t = 1;
+
+                if (sensorcount > 0)
+                {
+                    for (var z = 0; z != sensorcount; ++z)
+                    {
+                        var name = computerHardware.Hardware[i].Sensors[z].Name;
+                        var type = computerHardware.Hardware[i].Sensors[z].SensorType.ToString();
+                        var value = computerHardware.Hardware[i].Sensors[z].Value.ToString();
+                        
+                        if (type.Contains("Load"))
+                        {
+                            string valueName = (name.Contains("Core") ? "core_" + (l++).ToString() : "total");
+                            loads.Add(new Entities.Load.Core(valueName, Convert.ToInt32(Convert.ToDouble(value)), "\t\t\t\t\t"));
+                        }
+                        else if (type.Contains("Temperature"))
+                        {
+                            string valueName = (name.Contains("Core") ? "core_" + (t++).ToString() : "total");
+                            temps.Add(new Entities.Load.Core(valueName, Convert.ToInt32(Convert.ToDouble(value)), "\t\t\t\t\t"));
+                        }
+                    }
+                }
+
+                cpuList.Add(new Entities.Load.CPU(i + 1, loads, temps, "\t\t\t"));
+            }
+            computerHardware.Close();
         }
 
         private void GetHDDLoad()
@@ -55,7 +101,7 @@ namespace MonyzeWindowsAgent
             }
 
             var ramAvailableGetter = new System.Diagnostics.PerformanceCounter("Memory", "Available MBytes");
-            double ramAvailable = ramAvailableGetter.NextValue();
+            var ramAvailable = Convert.ToInt64(ramAvailableGetter.NextValue());
 
             ram = new Entities.Load.RAM(100 - (int)((ramAvailable / totalRamMb) * 100), ramAvailable, "\t\t");
         }

@@ -7,26 +7,45 @@ using MonyzeWindowsAgent.Entities;
 
 namespace MonyzeWindowsAgent.Entities.Load
 {
+    class Core : IEntity
+    {
+        public string indent = "";
+        public string name;
+        public int value;
+        
+        public Core(string name_, int value_, string indent_ = "")
+        {
+            indent = indent_;
+            name = name_;
+            value = value_;
+        }
+
+        public string Serialize()
+        {
+            return indent + "\"" + name + "\":" + value.ToString();
+        }
+    }
+
     class CPU : IEntity
     {
         public string indent = "";
         public int number;
-        public int load;
-        public double temp;
+        public List loads;
+        public List temps;
 
-        public CPU(int number_, int load_, double temp_, string indent_ = "")
+        public CPU(int number_, List loads_, List temps_, string indent_ = "")
         {
             indent = indent_;
             number = number_;
-            load = load_;
-            temp = temp_;
+            loads = loads_;
+            temps = temps_;
         }
 
         public string Serialize()
         {
             return indent + "\"cpu_" + number.ToString() + "\":{\r\n" +
-                indent + "\t\"load\":{\r\n" + indent + "\t\t\"total\":" + load.ToString() + "\r\n" + indent + "\t},\r\n" +
-                indent + "\t\"temp\":" + temp.ToString() + "\r\n" +
+                loads.Serialize() + ",\r\n" +
+                temps.Serialize() + "\r\n" +
                 indent + "}";
         }
     }

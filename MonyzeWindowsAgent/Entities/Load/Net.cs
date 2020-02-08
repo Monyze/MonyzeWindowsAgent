@@ -11,12 +11,12 @@ namespace MonyzeWindowsAgent.Entities.Load
     {
         public string indent = "";
         public int number;
-        public double rx;
-        public double tx;
+        public Int64 rx;
+        public Int64 tx;
         public int prx;
         public int ptx;
 
-        public Net(int number_, double rx_, double tx_, int prx_, int ptx_, string indent_ = "")
+        public Net(int number_, Int64 rx_, Int64 tx_, int prx_, int ptx_, string indent_ = "")
         {
             indent = indent_;
             number = number_;

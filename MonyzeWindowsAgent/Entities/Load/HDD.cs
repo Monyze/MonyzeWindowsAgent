@@ -10,12 +10,12 @@ namespace MonyzeWindowsAgent.Entities.Load
     class Logical : IEntity
     {
         public string indent = "";
-        public double free;
+        public Int64 free;
         public int load;
-        public double used;
+        public Int64 used;
         string ldisk;
 
-        public Logical(double free_, int load_, double used_, string ldisk_, string indent_ = "")
+        public Logical(Int64 free_, int load_, Int64 used_, string ldisk_, string indent_ = "")
         {
             indent = indent_;
             free = free_;
@@ -39,9 +39,9 @@ namespace MonyzeWindowsAgent.Entities.Load
     {
         public string indent = "";
         public int number;
-        public List<Logical> logicals;
+        public List logicals;
 
-        public HDD(int number_, List<Logical> logicals_, string indent_ = "")
+        public HDD(int number_, List logicals_, string indent_ = "")
         {
             indent = indent_;
             number = number_;
@@ -50,15 +50,8 @@ namespace MonyzeWindowsAgent.Entities.Load
 
         public string Serialize()
         {
-            var list = new List("ldisks", indent + "\t", BracketType.scSquare);
-            
-            foreach(var l in logicals)
-            {
-                list.Add(l);
-            }
-
             return indent + "\"hdd_" + number.ToString() + "\":{\r\n" +
-                list.Serialize() +
+                indent + "\t\"ldisks\":" + logicals.Serialize() +
                 indent + "}";
         }
     }
