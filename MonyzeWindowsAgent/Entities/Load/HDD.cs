@@ -10,12 +10,12 @@ namespace MonyzeWindowsAgent.Entities.Load
     class Logical : IEntity
     {
         public string indent = "";
-        public Int64 free;
+        public double free;
         public int load;
-        public Int64 used;
+        public double used;
         string ldisk;
 
-        public Logical(Int64 free_, int load_, Int64 used_, string ldisk_, string indent_ = "")
+        public Logical(double free_, int load_, double used_, string ldisk_, string indent_ = "")
         {
             indent = indent_;
             free = free_;
@@ -27,10 +27,10 @@ namespace MonyzeWindowsAgent.Entities.Load
         public string Serialize()
         {
             return indent + "{\r\n" +
-                indent + "\t\"free\":" + free.ToString() + ",\r\n" +
+                indent + "\t\"free\":" + free.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + ",\r\n" +
                 indent + "\t\"load\":" + load.ToString() + ",\r\n" +
-                indent + "\t\"used\":" + used.ToString() + ",\r\n" +
-                indent + "\t\"free\":\"" + @ldisk + "\"\r\n" +
+                indent + "\t\"used\":" + used.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + ",\r\n" +
+                indent + "\t\"ldisk\":\"" + @ldisk + "\"\r\n" +
                 indent + "}";
         }
     }
@@ -51,7 +51,7 @@ namespace MonyzeWindowsAgent.Entities.Load
         public string Serialize()
         {
             return indent + "\"hdd_" + number.ToString() + "\":{\r\n" +
-                indent + "\t\"ldisks\":" + logicals.Serialize() +
+                logicals.Serialize() + "\r\n" +
                 indent + "}";
         }
     }

@@ -11,12 +11,12 @@ namespace MonyzeWindowsAgent.Entities.Load
     {
         public string indent = "";
         public int number;
-        public Int64 rx;
-        public Int64 tx;
-        public int prx;
-        public int ptx;
+        public double rx;
+        public double tx;
+        public Int64 prx;
+        public Int64 ptx;
 
-        public Net(int number_, Int64 rx_, Int64 tx_, int prx_, int ptx_, string indent_ = "")
+        public Net(int number_, double rx_, double tx_, Int64 prx_, Int64 ptx_, string indent_ = "")
         {
             indent = indent_;
             number = number_;
@@ -29,8 +29,8 @@ namespace MonyzeWindowsAgent.Entities.Load
         public string Serialize()
         {
             return indent + "\"net_" + number.ToString() + "\":{\r\n" +
-                indent + "\t\"rx\":" + rx.ToString() + ",\r\n" +
-                indent + "\t\"tx\":" + tx.ToString() + ",\r\n" +
+                indent + "\t\"rx\":" + rx.ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture) + ",\r\n" +
+                indent + "\t\"tx\":" + tx.ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture) + ",\r\n" +
                 indent + "\t\"prx\":" + prx.ToString() + ",\r\n" +
                 indent + "\t\"ptx\":" + ptx.ToString() + "\r\n" +
                 indent + "}";

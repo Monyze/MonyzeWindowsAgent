@@ -36,7 +36,8 @@
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="OpenHardwareMonitorLib">
+    <Reference Include="OpenHardwareMonitorLib, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>.\OpenHardwareMonitorLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -65,6 +66,7 @@
     <Compile Include="Entities\Load\LoadSummary.cs" />
     <Compile Include="Entities\Load\Net.cs" />
     <Compile Include="Entities\Load\RAM.cs" />
+    <Compile Include="Entities\Load\Widgets.cs" />
     <Compile Include="HardwareGetter.cs" />
     <Compile Include="IniFile.cs" />
     <Compile Include="LoadGetter.cs" />

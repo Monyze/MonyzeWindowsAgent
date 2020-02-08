@@ -15,13 +15,15 @@ namespace MonyzeWindowsAgent.Entities.Load
         public List hdd;
         public List net;
         public RAM ram;
+        public Widgets widgets;
 
         public LoadSummary(string userId_,
             string deviceId_,
             ref List cpu_,
             ref List hdd_,
             ref List net_,
-            ref RAM ram_)
+            ref RAM ram_,
+            ref Widgets widgets_)
         {
             userId = userId_;
             deviceId = deviceId_;
@@ -29,6 +31,7 @@ namespace MonyzeWindowsAgent.Entities.Load
             hdd = hdd_;
             net = net_;
             ram = ram_;
+            widgets = widgets_;
         }
 
         public string Serialize()
@@ -42,8 +45,8 @@ namespace MonyzeWindowsAgent.Entities.Load
                      cpu.Serialize() + ",\r\n" +
                      hdd.Serialize() + ",\r\n" +
                      net.Serialize() + ",\r\n" +
-                     ram.Serialize() +
-                 "\r\n\t}\r\n}";
+                     ram.Serialize() + "\r\n\t},\r\n" +
+                 widgets.Serialize() + "\r\n}";
         }
     }
 }
