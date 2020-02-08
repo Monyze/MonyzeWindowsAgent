@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Management;
 using OpenHardwareMonitor.Hardware;
+using System.Net.NetworkInformation;
 
 namespace MonyzeWindowsAgent
 {
@@ -152,6 +153,21 @@ namespace MonyzeWindowsAgent
         private void GetNetLoad()
         {
             netList.Clear();
+
+            if (!NetworkInterface.GetIsNetworkAvailable())
+                return;
+
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+            int x = 1;
+
+            foreach (NetworkInterface ni in interfaces)
+            {
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                {
+                    //netList.Add(new Entities.Load.Net(x++, ni.GetIPv4Statistics().BytesReceived / 100000, "\t\t\t"));
+                }
+            }
         }
 
         private void GetRAMLoad()

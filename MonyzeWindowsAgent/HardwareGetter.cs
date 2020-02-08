@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Management;
+using System.Net.NetworkInformation;
 
 namespace MonyzeWindowsAgent
 {
@@ -100,42 +101,29 @@ namespace MonyzeWindowsAgent
         {
             netList.Clear();
 
-            var searcherNetworkAdapters = new ManagementObjectSearcher("select * from Win32_NetworkAdapter");
-            try
+            if (!NetworkInterface.GetIsNetworkAvailable())
+                return;
+
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+            int x = 1;
+
+            foreach (NetworkInterface ni in interfaces)
             {
-                int x = 1;
-
-                foreach (var networkAdapter in searcherNetworkAdapters.Get())
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
                 {
-                    foreach (var prop in networkAdapter.Properties)
+                    string addr = "";
+                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
                     {
-                        if (prop.Name == "MACAddress" && prop.Value != null)
+                        if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                         {
-                            string address = "";
-
-                            string adapterGUID = networkAdapter["GUID"].ToString();
-
-                            var searcherNetworkAdapterConfigurations = new ManagementObjectSearcher("select * from Win32_NetworkAdapterConfiguration");
-                            foreach (var networkAdapterConfiguration in searcherNetworkAdapterConfigurations.Get())
-                            {
-                                if (networkAdapterConfiguration["SettingID"].ToString().Contains(adapterGUID))
-                                {
-                                    string[] addresses = (string[])networkAdapterConfiguration["IPAddress"];
-                                    if (addresses.Count() != 0)
-                                    {
-                                        address = addresses[0];
-                                    }
-                                }
-                            }
-
-                            netList.Add(new Entities.Config.Net(x++, networkAdapter["NetConnectionID"].ToString(), networkAdapter["Name"].ToString(), (Convert.ToInt64(networkAdapter["Speed"]) / 100000), address, "\t\t\t"));
+                            addr = ip.Address.ToString() ;
+                            break; // get only the first address...
                         }
                     }
+
+                    netList.Add(new Entities.Config.Net(x++, ni.Name, ni.Description, ni.Speed / 100000, addr, "\t\t\t"));
                 }
-            }
-            catch (Exception exp)
-            {
-                Logger.Log.Error("HardwareGetter.GetNetList :: " + exp.Message);
             }
         }
 
