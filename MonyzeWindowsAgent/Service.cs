@@ -81,7 +81,7 @@ namespace MonyzeWindowsAgent
                 Logger.Log.Info(lgOutput);
             }
 
-            /*WebRequest request = WebRequest.Create(config.url);
+            WebRequest request = WebRequest.Create(config.url);
             request.Method = "POST";
 
             byte[] byteArray = Encoding.UTF8.GetBytes(lgOutput);
@@ -95,7 +95,7 @@ namespace MonyzeWindowsAgent
             WebResponse response = request.GetResponse();
             Logger.Log.InfoFormat("Sending hw load result: {0}", ((HttpWebResponse)response).StatusDescription);
 
-            response.Close();*/
+            response.Close();
         }
 
         private void OnElapsedTime(object source, ElapsedEventArgs e)
@@ -105,7 +105,7 @@ namespace MonyzeWindowsAgent
             {
                 started = true;
 
-                //SendHWConfig();
+                SendHWConfig();
             }
 
             SendHWLoad();
