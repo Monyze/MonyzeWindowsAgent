@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Management;
 using OpenHardwareMonitor.Hardware;
-using System.Net.NetworkInformation;
 
 namespace MonyzeWindowsAgent
 {
@@ -18,6 +17,8 @@ namespace MonyzeWindowsAgent
         private Entities.List netList = new Entities.List("net", "\t\t", Entities.BracketType.scCurly);
         private Entities.Load.RAM ram;
         private Entities.Load.Widgets widgets = new Entities.Load.Widgets("\t");
+
+        private NetMeter netMeter = new NetMeter();
 
         public LoadGetter(ref Config config_)
         {
@@ -154,19 +155,13 @@ namespace MonyzeWindowsAgent
         {
             netList.Clear();
 
-            if (!NetworkInterface.GetIsNetworkAvailable())
-                return;
-
-            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            netMeter.Do();
 
             int x = 1;
 
-            foreach (NetworkInterface ni in interfaces)
+            foreach (var v in netMeter.values)
             {
-                if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
-                {
-                    //netList.Add(new Entities.Load.Net(x++, ni.GetIPv4Statistics().BytesReceived / 100000, "\t\t\t"));
-                }
+                netList.Add(new Entities.Load.Net(x++, v.rx, v.tx, v.prx, v.ptx, "\t\t\t"));
             }
         }
 

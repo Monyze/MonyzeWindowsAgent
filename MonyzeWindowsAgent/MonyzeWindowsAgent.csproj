@@ -71,6 +71,7 @@
     <Compile Include="IniFile.cs" />
     <Compile Include="LoadGetter.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="NetMeter.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>

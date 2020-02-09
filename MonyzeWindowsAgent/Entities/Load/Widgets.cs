@@ -24,7 +24,7 @@ namespace MonyzeWindowsAgent.Entities.Load
         {
             return indent + "{\r\n" +
                 indent + "\t\"load\":" + load.ToString() + ",\r\n" +
-                indent + "\t\"free\":\"" + @ldisk + "\"\r\n" +
+                indent + "\t\"ldisk\":\"" + @ldisk + "\"\r\n" +
                 indent + "}";
         }
     }
