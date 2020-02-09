@@ -27,6 +27,14 @@ namespace MonyzeWindowsAgent
                     case "--uninstall":
                         ManagedInstallerClass.InstallHelper(new[] { "/u", Assembly.GetExecutingAssembly().Location });
                         break;
+                    default: /// Debug
+                        MonyzeWindowsAgent mwa = new MonyzeWindowsAgent();
+                        mwa.Run();
+                        while (true)
+                        {
+                            System.Threading.Thread.Sleep(5000);
+                        }
+                        break;
                 }
             }
             else

@@ -32,13 +32,12 @@ Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Files]
 Source: "MonyzeWindowsAgent\bin\Release\MonyzeWindowsAgent.exe"; DestDir: "{app}"; Flags: ignoreversion;
+Source: "MonyzeWindowsAgent\bin\Release\MonyzeWindowsAgent.exe.config"; DestDir: "{app}"; Flags: ignoreversion;
 Source: "MonyzeWindowsAgent\bin\Release\log4net.dll"; DestDir: "{app}"; Flags: ignoreversion;
-Source: "MonyzeWindowsAgent\bin\Release\log4net.xml"; DestDir: "{app}"; Flags: ignoreversion;
 Source: "MonyzeWindowsAgent\bin\Release\OpenHardwareMonitorLib.dll"; DestDir: "{app}"; Flags: ignoreversion;
 Source: "MonyzeWindowsAgent\bin\Release\monyze_config.ini"; DestDir: "{app}"; Flags: ignoreversion;
 
 [Run]
-
 Filename: {sys}\sc.exe; Parameters: "stop ""MonyzeAgent""" ; Flags: runhidden
 Filename: {sys}\sc.exe; Parameters: "delete ""MonyzeAgent""" ; Flags: runhidden
 Filename: {app}\MonyzeWindowsAgent.exe; Parameters: "--install" ; Flags: runhidden
@@ -46,5 +45,41 @@ Filename: {sys}\sc.exe; Parameters: "start ""MonyzeAgent""" ; Flags: runhidden
 
 [UninstallRun]
 Filename: {sys}\sc.exe; Parameters: "stop ""MonyzeAgent""" ; Flags: runhidden;
-Filename: {sys}\timeout.exe; Parameters: "4" ; Flags: runhidden;
+Filename: {sys}\timeout.exe; Parameters: "1" ; Flags: runhidden;
 Filename: {app}\MonyzeWindowsAgent.exe; Parameters: "--uninstall" ; Flags: runhidden
+
+[Code]
+var
+  CustomQueryPage: TInputQueryWizardPage;
+
+procedure AddCustomQueryPage();
+begin
+  CustomQueryPage := CreateInputQueryPage(
+    wpWelcome,
+    'Monyze monitoring agent',
+    '',
+    '');
+
+  { Add items (False means it's not a password edit) }
+  CustomQueryPage.Add('User ID:', False);
+  CustomQueryPage.Add('Device ID:', False);
+end;
+
+procedure InitializeWizard();
+begin
+  AddCustomQueryPage();
+end;
+
+function GetUserID(param: String): String;
+begin
+  Result := Trim(CustomQueryPage.Values[0]);
+end;
+
+function GetDeviceID(param: String): String;
+begin
+  Result := Trim(CustomQueryPage.Values[1]);
+end;
+
+[INI]
+Filename: {app}\monyze_config.ini; Section: "MonyzeWindowsAgent"; Key: "user_id"; String: {code:GetUserID}
+Filename: {app}\monyze_config.ini; Section: "MonyzeWindowsAgent"; Key: "device_id"; String: {code:GetDeviceID}

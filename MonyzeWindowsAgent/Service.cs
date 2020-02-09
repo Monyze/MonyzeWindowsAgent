@@ -30,6 +30,11 @@ namespace MonyzeWindowsAgent
 
         protected override void OnStart(string[] args)
         {
+            Run();
+        }
+
+        public void Run()
+        {
             Logger.InitLogger();
 
             Logger.Log.InfoFormat("Service is started, user id: {0}, device id: {1}", config.userId, config.deviceId);
