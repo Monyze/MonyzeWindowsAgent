@@ -23,6 +23,8 @@ namespace MonyzeWindowsAgent
         public LoadGetter(ref Config config_)
         {
             config = config_;
+
+            widgets.nets = netList;
         }
 
         private void GetCPULoad()
@@ -192,12 +194,29 @@ namespace MonyzeWindowsAgent
             widgets.ramLoad = ramLoad;
         }
 
+        public void GetUptime()
+        {
+            try
+            {
+                ManagementObject mo = new ManagementObject(@"\\.\root\cimv2:Win32_OperatingSystem=@");
+                DateTime lastBootUp = ManagementDateTimeConverter.ToDateTime(mo["LastBootUpTime"].ToString());
+                var uptime = DateTime.Now.ToUniversalTime() - lastBootUp.ToUniversalTime();
+
+                widgets.uptime = Convert.ToInt64(uptime.TotalSeconds);
+            }
+            catch (Exception exp)
+            {
+                Logger.Log.Error("LoadGetter.GetUptime :: " + exp.Message);
+            }
+        }
+
         public string GetComputerLoad()
         {
             GetCPULoad();
             GetHDDLoad();
             GetNetLoad();
             GetRAMLoad();
+            GetUptime();
 
             var load = new Entities.Load.LoadSummary(config.userId,
                 config.deviceId,

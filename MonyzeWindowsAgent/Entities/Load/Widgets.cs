@@ -56,7 +56,9 @@ namespace MonyzeWindowsAgent.Entities.Load
         public int cpuLoad;
         public int cpuTemp;
         public int ramLoad;
+        public Int64 uptime;
         public List disks = new List("hdd_load", "\t\t", BracketType.scCurly);
+        public List nets;
 
         public Widgets(string indent_ = "")
         {
@@ -69,7 +71,9 @@ namespace MonyzeWindowsAgent.Entities.Load
                 indent + "\t\"cpu_load\":" + cpuLoad.ToString() + ",\r\n" +
                 indent + "\t\"cpu_temp\":" + (cpuTemp != 0 ? cpuTemp.ToString() : "\"n/a\"") + ",\r\n" +
                 indent + "\t\"ram_load\":" + ramLoad.ToString() + ",\r\n" +
-                disks.Serialize() + "\r\n" +
+                indent + "\t\"uptime\":" + uptime.ToString() + ",\r\n" +
+                disks.Serialize() + ",\r\n" +
+                nets.Serialize() + "\r\n" +
                 indent + "}";
         }
     }
