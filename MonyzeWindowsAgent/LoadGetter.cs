@@ -15,7 +15,7 @@ namespace MonyzeWindowsAgent
         private Entities.List cpuList = new Entities.List("cpu", "\t\t", Entities.BracketType.scCurly);
         private Entities.List hddList = new Entities.List("hdd", "\t\t", Entities.BracketType.scCurly);
         private Entities.List netList = new Entities.List("net", "\t\t", Entities.BracketType.scCurly);
-        private Entities.Load.RAM ram;
+        private Entities.Load.RAM ram = new Entities.Load.RAM(0, 0, "\t\t");
         private Entities.Load.Widgets widgets = new Entities.Load.Widgets("\t");
 
         private NetMeter netMeter = new NetMeter();
@@ -178,20 +178,16 @@ namespace MonyzeWindowsAgent
                 {
                     totalRamMb = Convert.ToInt64(computerSystem["TotalPhysicalMemory"].ToString()) / 1000000;
                 }
+
+                var ramAvailableGetter = new System.Diagnostics.PerformanceCounter("Memory", "Available MBytes");
+                ram.availPh = Convert.ToInt64(ramAvailableGetter.NextValue());
+
+                ram.load = 100 - (int)((ram.availPh / totalRamMb) * 100);
             }
             catch (Exception exp)
             {
                 Logger.Log.Error("LoadGetter.GetRAMLoad :: " + exp.Message);
-            }
-
-            var ramAvailableGetter = new System.Diagnostics.PerformanceCounter("Memory", "Available MBytes");
-            var ramAvailable = Convert.ToInt64(ramAvailableGetter.NextValue());
-
-            int ramLoad = 100 - (int)((ramAvailable / totalRamMb) * 100);
-
-            ram = new Entities.Load.RAM(ramLoad, ramAvailable, "\t\t");
-
-            widgets.ramLoad = ramLoad;
+            }          
         }
 
         public void GetUptime()
