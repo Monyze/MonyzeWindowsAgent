@@ -40,9 +40,10 @@
             // 
             // serviceInstaller
             // 
-            this.serviceInstaller.Description = "MonyzeWindowsAgent";
-            this.serviceInstaller.DisplayName = "MonyzeWindowsAgent";
-            this.serviceInstaller.ServiceName = "MonyzeWindowsAgent";
+            this.serviceInstaller.Description = "Monyze Windows Agent \r\nhttps://monyze.ru";
+            this.serviceInstaller.DisplayName = "Monyze Agent";
+            this.serviceInstaller.ServiceName = "MonyzeAgent";
+            this.serviceInstaller.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
             // 
