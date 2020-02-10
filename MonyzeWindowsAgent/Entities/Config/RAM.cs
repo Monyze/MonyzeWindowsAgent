@@ -10,9 +10,9 @@ namespace MonyzeWindowsAgent.Entities.Config
     class RAM : IEntity
     {
         public string indent = "";
-        public Int64 totalPh;
+        public UInt64 totalPh;
         
-        public RAM(Int64 totalPh_, string indent_ = "")
+        public RAM(UInt64 totalPh_, string indent_ = "")
         {
             indent = indent_;
             totalPh = totalPh_;

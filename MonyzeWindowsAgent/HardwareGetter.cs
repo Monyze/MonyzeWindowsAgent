@@ -15,7 +15,7 @@ namespace MonyzeWindowsAgent
         private Entities.List cpuList = new Entities.List("cpu", "\t\t", Entities.BracketType.scCurly);
         private Entities.List hddList = new Entities.List("hdd", "\t\t");
         private Entities.List netList = new Entities.List("net", "\t\t", Entities.BracketType.scCurly);
-        private Entities.Config.RAM ram;
+        private Entities.Config.RAM ram = new Entities.Config.RAM(0, "\t\t");
 
         public HardwareGetter(ref Config config_)
         {
@@ -119,22 +119,10 @@ namespace MonyzeWindowsAgent
 
         private void GetRAM()
         {
-            Int64 ramSize = 0;
+            var ramMeter = new RAMMeter();
+            ramMeter.Do();
 
-            var searcherComputerSystems = new ManagementObjectSearcher("select * from Win32_ComputerSystem");
-            try
-            {
-                foreach (var computerSystem in searcherComputerSystems.Get())
-                {
-                    ramSize = Convert.ToInt64(computerSystem["TotalPhysicalMemory"].ToString());
-                }
-            }
-            catch (Exception exp)
-            {
-                Logger.Log.Error("HardwareGetter.GetRAM :: " + exp.Message);
-            }
-
-            ram = new Entities.Config.RAM(ramSize, "\t\t");
+            ram.totalPh = ramMeter.statEX.ullTotalPhys;
         }
 
         public string GetComputerHardware()
