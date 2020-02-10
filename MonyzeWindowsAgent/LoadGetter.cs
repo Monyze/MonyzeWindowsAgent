@@ -19,6 +19,7 @@ namespace MonyzeWindowsAgent
         private Entities.Load.Widgets widgets = new Entities.Load.Widgets("\t");
 
         private NetMeter netMeter = new NetMeter();
+        private RAMMeter ramMeter = new RAMMeter();
 
         public LoadGetter(ref Config config_)
         {
@@ -152,27 +153,14 @@ namespace MonyzeWindowsAgent
 
         private void GetRAMLoad()
         {
-            double totalRamMb = 0;
+            ramMeter.Do();
 
-            var searcherComputerSystems = new ManagementObjectSearcher("select * from Win32_ComputerSystem");
-            try
-            {
-                foreach (var computerSystem in searcherComputerSystems.Get())
-                {
-                    totalRamMb = Convert.ToInt64(computerSystem["TotalPhysicalMemory"].ToString()) / 1000000;
-                }
+            ram.availPh = ramMeter.statEX.ullAvailPhys / 1000000;
+            var totalMb = ramMeter.statEX.ullTotalPhys / 1000000;
 
-                var ramAvailableGetter = new System.Diagnostics.PerformanceCounter("Memory", "Available MBytes");
-                ram.availPh = Convert.ToInt64(ramAvailableGetter.NextValue());
+            ram.load = 100 - (int)((Convert.ToDouble(ram.availPh) / Convert.ToDouble(totalMb)) * 100);
 
-                ram.load = 100 - (int)((ram.availPh / totalRamMb) * 100);
-
-                widgets.ramLoad = ram.load;
-            }
-            catch (Exception exp)
-            {
-                Logger.Log.Error("LoadGetter.GetRAMLoad :: " + exp.Message);
-            }          
+            widgets.ramLoad = ram.load;
         }
 
         public void GetUptime()
