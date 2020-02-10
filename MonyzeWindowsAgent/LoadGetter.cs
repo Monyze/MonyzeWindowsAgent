@@ -98,47 +98,30 @@ namespace MonyzeWindowsAgent
             {
                 int x = 1;
 
-                foreach (var physicalDrive in searcherPhysicalDrives.Get())
+                var driveQuery = new ManagementObjectSearcher("select * from Win32_DiskDrive");
+                foreach (ManagementObject d in driveQuery.Get())
                 {
                     Entities.List logicals = new Entities.List("ldisks", "\t\t\t\t");
                     Entities.List widgetLogicals = new Entities.List("ldisks", "\t\t\t\t");
 
-                    var searcherDiskPartitions = new ManagementObjectSearcher("select * from Win32_DiskDriveToDiskPartition");
-                    foreach (var diskPartition in searcherDiskPartitions.Get())
+                    var partitionQueryText = string.Format("associators of {{{0}}} where AssocClass = Win32_DiskDriveToDiskPartition", d.Path.RelativePath);
+                    var partitionQuery = new ManagementObjectSearcher(partitionQueryText);
+                    foreach (ManagementObject p in partitionQuery.Get())
                     {
-                        string deviceId = physicalDrive["deviceID"].ToString().TrimStart('\\');
-                        deviceId = deviceId.TrimStart('.');
-                        deviceId = deviceId.TrimStart('\\');
-
-                        if (diskPartition["Antecedent"].ToString().Contains(deviceId))
+                        var logicalDriveQueryText = string.Format("associators of {{{0}}} where AssocClass = Win32_LogicalDiskToPartition", p.Path.RelativePath);
+                        var logicalDriveQuery = new ManagementObjectSearcher(logicalDriveQueryText);
+                        foreach (ManagementObject ld in logicalDriveQuery.Get())
                         {
-                            string partitionId = diskPartition["Dependent"].ToString();
+                            var driveName = Convert.ToString(ld.Properties["Name"].Value);
 
-                            var searcherLogicalDisks = new ManagementObjectSearcher("select * from Win32_LogicalDiskToPartition");
-                            foreach (var logicalDisk in searcherLogicalDisks.Get())
-                            {
-                                if (logicalDisk["Antecedent"].ToString().Contains(partitionId))
-                                {
-                                    string[] tokens = logicalDisk["Dependent"].ToString().Split('=');
-                                    string ldisk = tokens[1].Trim('"');
+                            double free = Convert.ToDouble(ld.Properties["FreeSpace"].Value) / 1000000000;
+                            double total = Convert.ToDouble(ld.Properties["Size"].Value) / 1000000000;
+                            double used = total - free;
 
-                                    var searcherLogicalDiskParams = new ManagementObjectSearcher("select * from Win32_LogicalDisk");
-                                    foreach (var logicalDiskParam in searcherLogicalDiskParams.Get())
-                                    {
-                                        if (logicalDiskParam["DeviceID"].ToString().Contains(ldisk))
-                                        {
-                                            double free = Convert.ToDouble(logicalDiskParam["FreeSpace"].ToString()) / 1000000000;
-                                            double total = Convert.ToDouble(logicalDiskParam["Size"].ToString()) / 1000000000;
-                                            double used = total - free;
+                            int load = 100 - (int)((free / total) * 100);
 
-                                            int load = 100 - (int)((free / total) * 100);
-
-                                            logicals.Add(new Entities.Load.Logical(free, load, used, ldisk, "\t\t\t\t\t"));
-                                            widgetLogicals.Add(new Entities.Load.WidgetLogical(load, ldisk, "\t\t\t\t\t"));
-                                        }
-                                    }
-                                }
-                            }
+                            logicals.Add(new Entities.Load.Logical(free, load, used, driveName, "\t\t\t\t\t"));
+                            widgetLogicals.Add(new Entities.Load.WidgetLogical(load, driveName, "\t\t\t\t\t"));
                         }
                     }
 
