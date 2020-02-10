@@ -60,6 +60,11 @@ namespace MonyzeWindowsAgent
                         var name = computerHardware.Hardware[i].Sensors[z].Name;
                         var type = computerHardware.Hardware[i].Sensors[z].SensorType.ToString();
                         var value = computerHardware.Hardware[i].Sensors[z].Value.ToString();
+
+                        if (string.IsNullOrEmpty(value))
+                        {
+                            value = "0";
+                        }
                         
                         if (type.Contains("Load"))
                         {

@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /Installer/MonyzeWindowsAgent-1.0.exe
+*.exe
