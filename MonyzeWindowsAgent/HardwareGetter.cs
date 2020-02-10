@@ -61,7 +61,6 @@ namespace MonyzeWindowsAgent
                 var driveQuery = new ManagementObjectSearcher("select * from Win32_DiskDrive");
                 foreach (ManagementObject d in driveQuery.Get())
                 {
-                    //var deviceId = d.Properties["DeviceId"].Value;
                     var model = Convert.ToString(d.Properties["Model"].Value);
                     var size = Convert.ToInt64(d.Properties["Size"].Value) / 1000000000;
                     var logicals = new List<string>();
