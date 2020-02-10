@@ -26,10 +26,17 @@ namespace MonyzeWindowsAgent.Entities.Config
 
         public string Serialize()
         {
+            string letters = "";
+            foreach (var l in logicals)
+            {
+                letters += "\"" + l + "\",";
+            }
+            letters = letters.TrimEnd(',');
+
             return indent + "{" + indent + "\r\n" + indent + "\t\"hdd_" + number.ToString() + "\":{\r\n" +
                 indent + "\t\t\"name\":\"" + @name + "\",\r\n" +
                 indent + "\t\t\"size\":" + size.ToString() + ",\r\n" +
-                indent + "\t\t\"LOGICAL\":[" + string.Join(", ", logicals.ToArray()) + "]\r\n" +
+                indent + "\t\t\"LOGICAL\":[" + letters + "]\r\n" +
                 indent + "\t}\r\n" +
                 indent + "}";
         }

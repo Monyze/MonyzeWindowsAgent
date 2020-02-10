@@ -58,37 +58,28 @@ namespace MonyzeWindowsAgent
             {
                 int x = 1;
 
-                foreach (var physicalDrive in searcherPhysicalDrives.Get())
+                var driveQuery = new ManagementObjectSearcher("select * from Win32_DiskDrive");
+                foreach (ManagementObject d in driveQuery.Get())
                 {
-                    List<string> logicals = new List<string>();
+                    //var deviceId = d.Properties["DeviceId"].Value;
+                    var model = Convert.ToString(d.Properties["Model"].Value);
+                    var size = Convert.ToInt64(d.Properties["Size"].Value) / 1000000000;
+                    var logicals = new List<string>();
 
-                    var searcherDiskPartitions = new ManagementObjectSearcher("select * from Win32_DiskDriveToDiskPartition");
-                    foreach (var diskPartition in searcherDiskPartitions.Get())
+                    var partitionQueryText = string.Format("associators of {{{0}}} where AssocClass = Win32_DiskDriveToDiskPartition", d.Path.RelativePath);
+                    var partitionQuery = new ManagementObjectSearcher(partitionQueryText);
+                    foreach (ManagementObject p in partitionQuery.Get())
                     {
-                        string deviceId = physicalDrive["deviceID"].ToString().TrimStart('\\');
-                        deviceId = deviceId.TrimStart('.');
-                        deviceId = deviceId.TrimStart('\\');
-
-                        if (diskPartition["Antecedent"].ToString().Contains(deviceId))
+                        var logicalDriveQueryText = string.Format("associators of {{{0}}} where AssocClass = Win32_LogicalDiskToPartition", p.Path.RelativePath);
+                        var logicalDriveQuery = new ManagementObjectSearcher(logicalDriveQueryText);
+                        foreach (ManagementObject ld in logicalDriveQuery.Get())
                         {
-                            string partitionId = diskPartition["Dependent"].ToString();
-
-                            var searcherLogicalDisks = new ManagementObjectSearcher("select * from Win32_LogicalDiskToPartition");
-                            foreach (var logicalDisk in searcherLogicalDisks.Get())
-                            {
-                                if (logicalDisk["Antecedent"].ToString().Contains(partitionId))
-                                {
-                                    string[] tokens = logicalDisk["Dependent"].ToString().Split('=');
-
-                                    string deviceLetter = tokens[1];
-
-                                    logicals.Add(deviceLetter);
-                                }
-                            }
+                            var driveName = Convert.ToString(ld.Properties["Name"].Value);
+                            logicals.Add(driveName);
                         }
                     }
 
-                    hddList.Add(new Entities.Config.HDD(x++, physicalDrive["Model"].ToString(), Convert.ToInt64(physicalDrive["Size"].ToString()) / 1000000000, logicals, "\t\t\t"));
+                    hddList.Add(new Entities.Config.HDD(x++, model, size, logicals, "\t\t\t"));
                 }
             }
             catch (Exception exp)
