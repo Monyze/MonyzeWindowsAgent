@@ -60,21 +60,28 @@ namespace MonyzeWindowsAgent
                 Logger.Log.Info(hwgOutput);
             }
 
-            WebRequest request = WebRequest.Create(config.url);
-            request.Method = "POST";
+            try
+            {
+                WebRequest request = WebRequest.Create(config.url);
+                request.Method = "POST";
 
-            byte[] byteArray = Encoding.UTF8.GetBytes(hwgOutput);
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = byteArray.Length;
+                byte[] byteArray = Encoding.UTF8.GetBytes(hwgOutput);
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.ContentLength = byteArray.Length;
 
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
+                Stream dataStream = request.GetRequestStream();
+                dataStream.Write(byteArray, 0, byteArray.Length);
+                dataStream.Close();
 
-            WebResponse response = request.GetResponse();
-            Logger.Log.InfoFormat("Sending hw configuration result: {0}", ((HttpWebResponse)response).StatusDescription);
+                WebResponse response = request.GetResponse();
+                Logger.Log.InfoFormat("Sending hw configuration result: {0}", ((HttpWebResponse)response).StatusDescription);
 
-            response.Close();
+                response.Close();
+            }
+            catch (Exception exp)
+            {
+                Logger.Log.Error("SendHWConfig :: " + exp.Message);
+            }
         }
 
         private void SendHWLoad()
@@ -86,21 +93,28 @@ namespace MonyzeWindowsAgent
                 Logger.Log.Info(lgOutput);
             }
 
-            WebRequest request = WebRequest.Create(config.url);
-            request.Method = "POST";
+            try
+            {
+                WebRequest request = WebRequest.Create(config.url);
+                request.Method = "POST";
 
-            byte[] byteArray = Encoding.UTF8.GetBytes(lgOutput);
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = byteArray.Length;
+                byte[] byteArray = Encoding.UTF8.GetBytes(lgOutput);
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.ContentLength = byteArray.Length;
 
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
+                Stream dataStream = request.GetRequestStream();
+                dataStream.Write(byteArray, 0, byteArray.Length);
+                dataStream.Close();
 
-            WebResponse response = request.GetResponse();
-            Logger.Log.InfoFormat("Sending hw load result: {0}", ((HttpWebResponse)response).StatusDescription);
+                WebResponse response = request.GetResponse();
+                Logger.Log.InfoFormat("Sending hw load result: {0}", ((HttpWebResponse)response).StatusDescription);
 
-            response.Close();
+                response.Close();
+            }
+            catch (Exception exp)
+            {
+                Logger.Log.Error("SendHWLoad :: " + exp.Message);
+            }
         }
 
         private void OnElapsedTime(object source, ElapsedEventArgs e)
