@@ -166,6 +166,8 @@ namespace MonyzeWindowsAgent
                 ram.availPh = Convert.ToInt64(ramAvailableGetter.NextValue());
 
                 ram.load = 100 - (int)((ram.availPh / totalRamMb) * 100);
+
+                widgets.ramLoad = ram.load;
             }
             catch (Exception exp)
             {
