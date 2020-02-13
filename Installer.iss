@@ -35,7 +35,7 @@ Source: "MonyzeWindowsAgent\bin\Release\MonyzeWindowsAgent.exe"; DestDir: "{app}
 Source: "MonyzeWindowsAgent\bin\Release\MonyzeWindowsAgent.exe.config"; DestDir: "{app}"; Flags: ignoreversion;
 Source: "MonyzeWindowsAgent\bin\Release\log4net.dll"; DestDir: "{app}"; Flags: ignoreversion;
 Source: "MonyzeWindowsAgent\bin\Release\OpenHardwareMonitorLib.dll"; DestDir: "{app}"; Flags: ignoreversion;
-Source: "MonyzeWindowsAgent\bin\Release\monyze_config.ini"; DestDir: "{app}"; Flags: ignoreversion;
+Source: "monyze_config.ini"; DestDir: "{app}"; Flags: ignoreversion;
 
 [Run]
 Filename: {sys}\sc.exe; Parameters: "stop ""MonyzeAgent""" ; Flags: runhidden

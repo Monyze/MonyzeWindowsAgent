@@ -18,12 +18,13 @@ namespace MonyzeWindowsAgent
         private Entities.Load.RAM ram = new Entities.Load.RAM(0, 0, "\t\t");
         private Entities.Load.Widgets widgets = new Entities.Load.Widgets("\t");
 
-        private NetMeter netMeter = new NetMeter();
+        private NetMeter netMeter;
         private RAMMeter ramMeter = new RAMMeter();
 
-        public LoadGetter(ref Config config_)
+        public LoadGetter(ref Config config_, ref NetMeter netMeter_)
         {
             config = config_;
+            netMeter = netMeter_;
 
             widgets.nets = netList;
         }

@@ -19,7 +19,9 @@ namespace MonyzeWindowsAgent
 
         private Timer timer = new Timer();
 
-        private LoadGetter loadGetter = new LoadGetter(ref config);
+        private static NetMeter netMeter = new NetMeter(config.interval);
+
+        private LoadGetter loadGetter = new LoadGetter(ref config, ref netMeter);
 
         private bool started = false;
 
@@ -51,7 +53,7 @@ namespace MonyzeWindowsAgent
 
         private void SendHWConfig()
         {
-            var hwg = new HardwareGetter(ref config);
+            var hwg = new HardwareGetter(ref config, ref netMeter);
 
             var hwgOutput = hwg.GetComputerHardware();
 

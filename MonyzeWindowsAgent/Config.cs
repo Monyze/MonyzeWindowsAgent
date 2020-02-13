@@ -14,6 +14,8 @@ namespace MonyzeWindowsAgent
 
         public readonly string deviceId;
 
+        public readonly int interval = 5; // in seconds
+
         public readonly bool logJSONs;
 
         public Config()

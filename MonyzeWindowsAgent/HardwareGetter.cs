@@ -5,21 +5,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Management;
 using System.Net.NetworkInformation;
+using Microsoft.Win32;
 
 namespace MonyzeWindowsAgent
 {
     class HardwareGetter
     {
         private Config config;
+        private NetMeter netMeter;
 
         private Entities.List cpuList = new Entities.List("cpu", "\t\t", Entities.BracketType.scCurly);
         private Entities.List hddList = new Entities.List("hdd", "\t\t");
         private Entities.List netList = new Entities.List("net", "\t\t", Entities.BracketType.scCurly);
         private Entities.Config.RAM ram = new Entities.Config.RAM(0, "\t\t");
 
-        public HardwareGetter(ref Config config_)
+        public HardwareGetter(ref Config config_, ref NetMeter netMeter_)
         {
             config = config_;
+            netMeter = netMeter_;
         }
 
         private string GetWindowsVersion()
@@ -86,34 +89,16 @@ namespace MonyzeWindowsAgent
                 Logger.Log.Error("HardwareGetter.GetHDDList :: " + exp.Message);
             }
         }
-
+        
         private void GetNetList()
         {
             netList.Clear();
 
-            if (!NetworkInterface.GetIsNetworkAvailable())
-                return;
-
-            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-
             int x = 1;
 
-            foreach (NetworkInterface ni in interfaces)
+            foreach (NetMeterValues nmv in netMeter.values)
             {
-                if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
-                {
-                    string addr = "";
-                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
-                    {
-                        if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                        {
-                            addr = ip.Address.ToString() ;
-                            break; // get only the first address...
-                        }
-                    }
-
-                    netList.Add(new Entities.Config.Net(x++, ni.Name, ni.Description, ni.Speed / 100000, addr, "\t\t\t"));
-                }
+                netList.Add(new Entities.Config.Net(x++, nmv.name, nmv.description, nmv.speed, nmv.addr, "\t\t\t"));
             }
         }
 
