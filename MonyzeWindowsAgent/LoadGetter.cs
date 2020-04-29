@@ -69,7 +69,7 @@ namespace MonyzeWindowsAgent
                         
                         if (type.Contains("Load"))
                         {
-                            string valueName = (name.Contains("Core") ? "core_" + (l++).ToString() : "total");
+                            string valueName = (name.Contains("CPU Core #") ? "core_" + (l++).ToString() : "total");
                             loads.Add(new Entities.Load.Core(valueName, Convert.ToInt32(Convert.ToDouble(value)), "\t\t\t\t\t"));
 
                             if (name.Contains("CPU Total"))
