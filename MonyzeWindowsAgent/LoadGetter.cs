@@ -22,6 +22,7 @@ namespace MonyzeWindowsAgent
         private RAMMeter ramMeter = new RAMMeter();
 
         private Computer computerHardware = new Computer() { CPUEnabled = true };
+        private bool chwOpened = false;
 
         public LoadGetter(ref Config config_, ref NetMeter netMeter_)
         {
@@ -29,17 +30,16 @@ namespace MonyzeWindowsAgent
             netMeter = netMeter_;
 
             widgets.nets = netList;
-
-            computerHardware.Open();
-        }
-
-        ~LoadGetter()
-        {
-            computerHardware.Close();
         }
 
         private void GetCPULoad()
         {
+            if (!chwOpened)
+            {
+                chwOpened = true;
+                computerHardware.Open();
+            }
+
             cpuList.Clear();
 
             var hardwareCount = computerHardware.Hardware.Count();
