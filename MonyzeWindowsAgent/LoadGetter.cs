@@ -21,24 +21,32 @@ namespace MonyzeWindowsAgent
         private NetMeter netMeter;
         private RAMMeter ramMeter = new RAMMeter();
 
+        private Computer computerHardware = new Computer() { CPUEnabled = true };
+
         public LoadGetter(ref Config config_, ref NetMeter netMeter_)
         {
             config = config_;
             netMeter = netMeter_;
 
             widgets.nets = netList;
+
+            computerHardware.Open();
+        }
+
+        ~LoadGetter()
+        {
+            computerHardware.Close();
         }
 
         private void GetCPULoad()
         {
             cpuList.Clear();
 
-            Computer computerHardware = new Computer() { CPUEnabled = true };
-
-            computerHardware.Open();
             var hardwareCount = computerHardware.Hardware.Count();
             for (var i = 0; i != hardwareCount; ++i)
             {
+                computerHardware.Hardware[i].Update();
+
                 var loads = new Entities.List("load", "\t\t\t\t", Entities.BracketType.scCurly);
                 var temps = new Entities.List("temp", "\t\t\t\t", Entities.BracketType.scCurly);
 
@@ -60,21 +68,16 @@ namespace MonyzeWindowsAgent
                     {
                         var name = computerHardware.Hardware[i].Sensors[z].Name;
                         var type = computerHardware.Hardware[i].Sensors[z].SensorType.ToString();
-                        var value = computerHardware.Hardware[i].Sensors[z].Value.ToString();
-
-                        if (string.IsNullOrEmpty(value))
-                        {
-                            value = "0";
-                        }
+                        var value = computerHardware.Hardware[i].Sensors[z].Value;
                         
                         if (type.Contains("Load"))
                         {
                             string valueName = (name.Contains("CPU Core #") ? "core_" + (l++).ToString() : "total");
-                            loads.Add(new Entities.Load.Core(valueName, Convert.ToInt32(Convert.ToDouble(value)), "\t\t\t\t\t"));
+                            loads.Add(new Entities.Load.Core(valueName, Convert.ToInt32(value), "\t\t\t\t\t"));
 
-                            if (name.Contains("CPU Total"))
+                            if (name.Contains("CPU Total") || name == "CPU Core")
                             {
-                                widgets.cpuLoad = Convert.ToInt32(Convert.ToDouble(value));
+                                widgets.cpuLoad = Convert.ToInt32(value);
                             }
                         }
                         else if (type.Contains("Temperature"))
@@ -92,7 +95,6 @@ namespace MonyzeWindowsAgent
 
                 cpuList.Add(new Entities.Load.CPU(i + 1, loads, temps, "\t\t\t"));
             }
-            computerHardware.Close();
         }
 
         private void GetHDDLoad()
